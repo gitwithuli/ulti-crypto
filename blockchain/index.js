@@ -1,5 +1,6 @@
 const Block = require('./block');
 const Transaction = require('../wallet/transaction');
+const Wallet = require('../wallet');
 const { cryptoHash } = require('../util');
 const { REWARD_INPUT, MINING_REWARD } = require('../config');
 
@@ -17,14 +18,19 @@ class Blockchain {
         this.chain.push(newBlock);
     }
 
-    replaceChain(chain, onSuccess) {
+    replaceChain(chain, validateTransactions, onSuccess) {
         if (chain.length <= this.chain.length) {
             console.error('The incoming chain must be longer');
             return;
         }
 
-        if(!Blockchain.isValidChain(chain)){
+        if (!Blockchain.isValidChain(chain)){
             console.error('The incoming chain must be valid');
+            return;
+        }
+
+        if (validateTransactions && !this.validTransactionData({ chain })) {
+            console.error('The incoming chain as invalid data');
             return;
         }
 
@@ -36,6 +42,7 @@ class Blockchain {
     validTransactionData({ chain }){
         for (let i=1; i<chain.length; i++) {
             const block = chain[i];
+            const transactionSet = new Set();
             let rewardTransactionCount = 0;
 
             for (let transaction of block.data){
@@ -48,13 +55,30 @@ class Blockchain {
                     }
 
                     if (Object.values(transaction.outputMap)[0] !== MINING_REWARD) {
-                        console.log('Miner reward amount is invalid');
+                        console.error('Miner reward amount is invalid');
                         return false;
                     }
                 } else {
                     if (!Transaction.validTransaction(transaction)) {
                         console.error('Invalid transaction');
                         return false;
+                    }
+
+                    const trueBalance = Wallet.calculateBalance({
+                        chain: this.chain,
+                        address: transaction.input.address
+                    });
+
+                    if (transaction.input.amount !== trueBalance) {
+                        console.error('Invalid input amount');
+                        return false;
+                    }
+
+                    if (transactionSet.has(transaction)) {
+                        console.error('An identical transaction appears more than once in the block');
+                        return false;
+                    } else {
+                        transactionSet.add(transaction);
                     }
                 }
             }
