@@ -22,7 +22,7 @@ class ConductTransaction extends Component {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ recipient, amount })
         }).then(response => response.json())
-        .then(json => {
+            .then(json => {
             alert(json.message || json.type);
             history.push('/transaction-pool');
         });

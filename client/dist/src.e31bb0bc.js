@@ -46668,7 +46668,6 @@ var Blocks = /*#__PURE__*/function (_Component) {
   }, {
     key: "render",
     value: function render() {
-      console.log('this.state', this.state);
       return _react.default.createElement("div", null, _react.default.createElement("div", null, _react.default.createElement(_reactRouterDom.Link, {
         to: "/"
       }, "Home")), _react.default.createElement("h3", null, "Blocks"), this.state.blocks.map(function (block) {
@@ -46851,6 +46850,8 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
+var POLL_INERVAL_MS = 10000;
+
 var TransactionPool = /*#__PURE__*/function (_Component) {
   _inherits(TransactionPool, _Component);
 
@@ -46883,7 +46884,12 @@ var TransactionPool = /*#__PURE__*/function (_Component) {
   _createClass(TransactionPool, [{
     key: "componentDidMount",
     value: function componentDidMount() {
+      var _this2 = this;
+
       this.fetchTransactionPoolMap();
+      setInterval(function () {
+        return _this2.fetchTransactionPoolMap();
+      }, POLL_INERVAL_MS);
     }
   }, {
     key: "render",

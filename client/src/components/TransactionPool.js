@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import Transaction from './Transaction';
 import { Link } from 'react-router-dom';
 
+
+const POLL_INERVAL_MS = 10000;
+
 class TransactionPool extends Component {
     state = { transactionPoolMap: {} };
 
@@ -13,6 +16,11 @@ class TransactionPool extends Component {
 
     componentDidMount() {
         this.fetchTransactionPoolMap();
+
+        setInterval(
+            () => this.fetchTransactionPoolMap(),
+            POLL_INERVAL_MS
+        );
     }
 
     render() {
